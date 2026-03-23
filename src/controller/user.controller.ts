@@ -3,6 +3,7 @@ import { User } from '../model/user/user.model';
 import jwt, { Secret } from 'jsonwebtoken';
 import config from '../config';
 import bcrypt from 'bcryptjs';
+import { AuthRequest } from '../middleware/auth';
 
 // register user
 const register = async (req: Request, res: Response) => {
@@ -108,7 +109,65 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+// Logout user
+const logout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'User logged out successfully',
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to logout user',
+      error: err.message,
+    });
+  }
+};
+
+// Me
+const getMe = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized access',
+      });
+    }
+
+    const user = await User.findById(userId).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'User fetched successfully',
+      data: user,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to get user',
+      error: error.message,
+    });
+  }
+};
 export const userControllers = {
   register,
   login,
+  logout,
+  getMe,
 };
