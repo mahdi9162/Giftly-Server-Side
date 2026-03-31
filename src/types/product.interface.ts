@@ -14,4 +14,6 @@ export interface IProduct {
   image: string;
   alt: string;
   stock: number;
+  featured?: boolean;
+  featuredOrder?: number;
 }

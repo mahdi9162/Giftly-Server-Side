@@ -1,6 +1,38 @@
 import { Request, Response } from 'express';
 import { Product } from '../model/product/product.model';
 
+// Create Products
+const createProduct = async (req: Request, res: Response) => {
+  try {
+    const productData = req.body;
+    const { name, category } = productData;
+
+    const existingProduct = await Product.findOne({ name, category });
+
+    if (existingProduct) {
+      return res.status(409).json({
+        success: false,
+        message: 'A product with this name already exists in this category',
+      });
+    }
+
+    const newProduct = await Product.create(productData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: newProduct,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create product',
+      error,
+    });
+  }
+};
+
+// Get All Products
 const getAllProducts = async (req: Request, res: Response) => {
   try {
     const { category, search, rating, sort, page = '1', limit = '9' } = req.query;
@@ -62,5 +94,6 @@ const getAllProducts = async (req: Request, res: Response) => {
 };
 
 export const ProductController = {
+  createProduct,
   getAllProducts,
 };
