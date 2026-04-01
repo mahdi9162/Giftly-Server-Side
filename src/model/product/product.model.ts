@@ -22,6 +22,7 @@ const productSchema = new Schema<IProduct>(
     image: { type: String, required: true },
     alt: { type: String, required: true, trim: true },
     stock: { type: Number, required: true, min: 0 },
+    status: { type: String, required: true, default: 'Draft' },
     featured: { type: Boolean, required: false, default: false },
     featuredOrder: { type: Number, required: false, min: 1 },
   },

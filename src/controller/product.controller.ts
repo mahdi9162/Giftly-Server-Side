@@ -35,7 +35,7 @@ const createProduct = async (req: Request, res: Response) => {
 // Get All Products
 const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const { category, search, rating, sort, page = '1', limit = '9' } = req.query;
+    const { category, search, rating, status, sort, page = '1', limit = '9' } = req.query;
 
     const filter: Record<string, unknown> = {};
 
@@ -55,6 +55,10 @@ const getAllProducts = async (req: Request, res: Response) => {
       filter.rating = { $gte: 4.5 };
     }
 
+    if (status && status !== 'All') {
+      filter.status = status;
+    }
+
     let sortOption: Record<string, 1 | -1> = {};
     if (sort === 'low-to-high') {
       sortOption = { price: 1 };
@@ -72,6 +76,19 @@ const getAllProducts = async (req: Request, res: Response) => {
 
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / perPage);
+    const activeProducts = await Product.countDocuments({
+      ...filter,
+      status: 'Active',
+    });
+    const draftProducts = await Product.countDocuments({
+      ...filter,
+      status: 'Draft',
+    });
+
+    const outOfStockProducts = await Product.countDocuments({
+      ...filter,
+      status: 'Out of Stock',
+    });
 
     res.status(200).json({
       success: true,
@@ -81,6 +98,9 @@ const getAllProducts = async (req: Request, res: Response) => {
         totalPages,
         currentPage,
         perPage,
+        activeProducts,
+        draftProducts,
+        outOfStockProducts,
       },
       data: products,
     });
