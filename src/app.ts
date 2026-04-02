@@ -8,7 +8,7 @@ const app: Application = express();
 // Parsers
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://your-frontend.vercel.app'],
     credentials: true,
   }),
 );
