@@ -31,22 +31,21 @@ const register = async (req: Request, res: Response) => {
       expiresIn: config.jwt_expires_in as any,
     });
 
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+    });
+
     // Omit password from response
     const userResponse = savedUser.toObject();
     delete userResponse.password;
 
-    // set httpOnly cookie
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none' as const,
-    };
-
-    res.cookie('token', token, cookieOptions);
-
     return res.status(201).json({
       success: true,
       message: 'User registered successfully',
+      token,
       data: userResponse,
     });
   } catch (err: any) {
@@ -86,22 +85,21 @@ const login = async (req: Request, res: Response) => {
       expiresIn: config.jwt_expires_in as any,
     });
 
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+    });
+
     // Omit password from response
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    // set httpOnly cookie
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none' as const,
-    };
-
-    res.cookie('token', token, cookieOptions);
-
     return res.status(200).json({
       success: true,
       message: 'User logged in successfully',
+      token,
       data: userResponse,
     });
   } catch (err: any) {
@@ -116,14 +114,6 @@ const login = async (req: Request, res: Response) => {
 // Logout user
 const logout = async (req: Request, res: Response) => {
   try {
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none' as const,
-    };
-
-    res.clearCookie('token', cookieOptions);
-
     return res.status(200).json({
       success: true,
       message: 'User logged out successfully',
