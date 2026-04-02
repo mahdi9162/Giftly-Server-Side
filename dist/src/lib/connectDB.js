@@ -12,21 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const app_1 = __importDefault(require("./app"));
-const config_1 = __importDefault(require("./config"));
-const connectDB_1 = require("./lib/connectDB");
-function main() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield (0, connectDB_1.connectDB)();
-            app_1.default.listen(config_1.default.port, () => {
-                console.log(`Server is listening on port ${config_1.default.port}`);
-            });
-        }
-        catch (err) {
-            console.error('Failed to connect to MongoDB', err);
-            process.exit(1);
-        }
-    });
-}
-main();
+exports.connectDB = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const config_1 = __importDefault(require("../config"));
+let isConnected = false;
+const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    if (isConnected)
+        return;
+    if (!config_1.default.database_url) {
+        throw new Error('Database URL is not provided in environment variables');
+    }
+    yield mongoose_1.default.connect(config_1.default.database_url);
+    isConnected = true;
+    console.log('Connected to MongoDB successfully');
+});
+exports.connectDB = connectDB;
