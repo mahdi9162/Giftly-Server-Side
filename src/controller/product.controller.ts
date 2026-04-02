@@ -32,12 +32,14 @@ const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-// Get All Products
+// Public / User Products
 const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const { category, search, rating, status, sort, page = '1', limit = '9' } = req.query;
+    const { category, search, rating, sort, page = '1', limit = '9' } = req.query;
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      status: 'Active',
+    };
 
     if (category && category !== 'all') {
       filter.category = category;
@@ -53,10 +55,6 @@ const getAllProducts = async (req: Request, res: Response) => {
 
     if (rating === '4.5-up') {
       filter.rating = { $gte: 4.5 };
-    }
-
-    if (status && status !== 'All') {
-      filter.status = status;
     }
 
     let sortOption: Record<string, 1 | -1> = {};
@@ -76,23 +74,58 @@ const getAllProducts = async (req: Request, res: Response) => {
 
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / perPage);
-    const activeProducts = await Product.countDocuments({
-      ...filter,
-      status: 'Active',
-    });
-    const draftProducts = await Product.countDocuments({
-      ...filter,
-      status: 'Draft',
-    });
-
-    const outOfStockProducts = await Product.countDocuments({
-      ...filter,
-      status: 'Out of Stock',
-    });
 
     res.status(200).json({
       success: true,
-      message: 'Products fetched successfully',
+      message: 'Public products fetched successfully',
+      meta: {
+        totalProducts,
+        totalPages,
+        currentPage,
+        perPage,
+      },
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch public products',
+      error,
+    });
+  }
+};
+
+// Admin Products
+const getAdminProducts = async (req: Request, res: Response) => {
+  try {
+    const { search, status, page = '1', limit = '9' } = req.query;
+
+    const filter: Record<string, unknown> = {};
+
+    if (search) {
+      filter.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
+    }
+
+    if (status && status !== 'All') {
+      filter.status = status;
+    }
+
+    const currentPage = Number(page) || 1;
+    const perPage = Number(limit) || 9;
+    const skip = (currentPage - 1) * perPage;
+
+    const products = await Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(perPage);
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / perPage);
+
+    const activeProducts = await Product.countDocuments({ status: 'Active' });
+    const draftProducts = await Product.countDocuments({ status: 'Draft' });
+    const outOfStockProducts = await Product.countDocuments({ status: 'Out of Stock' });
+
+    res.status(200).json({
+      success: true,
+      message: 'Admin products fetched successfully',
       meta: {
         totalProducts,
         totalPages,
@@ -107,7 +140,7 @@ const getAllProducts = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch products',
+      message: 'Failed to fetch admin products',
       error,
     });
   }
@@ -116,4 +149,5 @@ const getAllProducts = async (req: Request, res: Response) => {
 export const ProductController = {
   createProduct,
   getAllProducts,
+  getAdminProducts,
 };
