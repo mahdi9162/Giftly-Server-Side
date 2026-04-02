@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Product } from '../model/product/product.model';
+import { Types } from 'mongoose';
 
 // Create Products
 const createProduct = async (req: Request, res: Response) => {
@@ -32,7 +33,7 @@ const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-// Public / User Products
+// User Get Products
 const getAllProducts = async (req: Request, res: Response) => {
   try {
     const { category, search, rating, sort, page = '1', limit = '9' } = req.query;
@@ -95,7 +96,7 @@ const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
-// Admin Products
+// Admin Get Products
 const getAdminProducts = async (req: Request, res: Response) => {
   try {
     const { search, status, page = '1', limit = '9' } = req.query;
@@ -146,8 +147,51 @@ const getAdminProducts = async (req: Request, res: Response) => {
   }
 };
 
+// Product Details
+const getProductDetails = async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // invalid mongo id
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product id',
+      });
+    }
+
+    // only active products
+    const product = await Product.findOne({
+      _id: id,
+      status: 'Active',
+    });
+
+    // if not getting product
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+
+    // 4. success response
+    return res.status(200).json({
+      success: true,
+      message: 'Product details fetched successfully',
+      data: product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product details',
+      error,
+    });
+  }
+};
+
 export const ProductController = {
   createProduct,
   getAllProducts,
   getAdminProducts,
+  getProductDetails,
 };

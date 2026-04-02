@@ -8,6 +8,7 @@ const router = express.Router();
 
 // getAllProducts
 router.get('/', ProductController.getAllProducts);
+router.get('/:id',ProductController.getProductDetails);
 router.post('/', verifyToken, allowRoles('admin', 'moderator'), validateProduct, ProductController.createProduct);
 
 export const ProductRoutes = router;
