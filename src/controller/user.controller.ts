@@ -36,11 +36,13 @@ const register = async (req: Request, res: Response) => {
     delete userResponse.password;
 
     // set httpOnly cookie
-    res.cookie('token', token, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-    });
+      secure: true,
+      sameSite: 'none' as const,
+    };
+
+    res.cookie('token', token, cookieOptions);
 
     return res.status(201).json({
       success: true,
@@ -89,11 +91,13 @@ const login = async (req: Request, res: Response) => {
     delete userResponse.password;
 
     // set httpOnly cookie
-    res.cookie('token', token, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-    });
+      secure: true,
+      sameSite: 'none' as const,
+    };
+
+    res.cookie('token', token, cookieOptions);
 
     return res.status(200).json({
       success: true,
@@ -112,11 +116,13 @@ const login = async (req: Request, res: Response) => {
 // Logout user
 const logout = async (req: Request, res: Response) => {
   try {
-    res.clearCookie('token', {
+    const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-    });
+      secure: true,
+      sameSite: 'none' as const,
+    };
+
+    res.clearCookie('token', cookieOptions);
 
     return res.status(200).json({
       success: true,
