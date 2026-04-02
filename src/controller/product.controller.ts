@@ -189,9 +189,63 @@ const getProductDetails = async (req: Request<{ id: string }>, res: Response) =>
   }
 };
 
+// Update Product
+const updateProduct = async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    //check invalid mongo id
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product id',
+      });
+    }
+
+    //check product exists
+    const existingProduct = await Product.findById(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+
+    const allowedFields = ['name', 'category', 'price', 'stock', 'image', 'alt', 'description', 'status', 'featured', 'featuredOrder'];
+
+    const updateData: Record<string, any> = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    // update product
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true, // updated data return
+      runValidators: true, // mongoose validation
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product updated successfully',
+      data: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error,
+    });
+  }
+};
+
 export const ProductController = {
   createProduct,
   getAllProducts,
   getAdminProducts,
   getProductDetails,
+  updateProduct,
 };
