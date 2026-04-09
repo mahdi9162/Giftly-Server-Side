@@ -2,6 +2,7 @@ import express from 'express';
 import { UserRoutes } from './user.routes';
 import { ProductRoutes } from './product.routes';
 import { AdminProductRoutes } from './products.admin.routes';
+import { AiRoutes } from './ai.routes';
 
 const router = express.Router();
 
@@ -16,7 +17,11 @@ const moduleRoutes = [
   },
   {
     path: '/admin/products',
-    route: AdminProductRoutes
+    route: AdminProductRoutes,
+  },
+  {
+    path: '/ai',
+    route: AiRoutes,
   },
 ];
 

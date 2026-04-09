@@ -242,6 +242,8 @@ const updateProduct = async (req: Request<{ id: string }>, res: Response) => {
   }
 };
 
+
+
 export const ProductController = {
   createProduct,
   getAllProducts,

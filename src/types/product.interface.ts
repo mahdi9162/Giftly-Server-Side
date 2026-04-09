@@ -15,7 +15,7 @@ export interface IProduct {
   image: string;
   alt: string;
   stock: number;
-  status: string;
+  status: status;
   featured?: boolean;
   featuredOrder?: number;
 }
