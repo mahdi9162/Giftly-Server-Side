@@ -63,8 +63,6 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
       aiProductContext,
     });
 
-    console.log('Prompt Built Successfully');
-
     const rawAiResponse = await callGroq(prompt);
     console.log('Raw AI Response:', rawAiResponse);
 
