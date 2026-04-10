@@ -15,25 +15,48 @@ export const getPreferredCategories = (occasion: string, person: string) => {
     categorySet.add('personalized');
   }
 
-  // Person-based preference
-  if (['wife', 'girlfriend', 'mom', 'mother', 'sister', 'female friend'].includes(normalizedPerson)) {
-    categorySet.add('for-her');
-    categorySet.add('personalized');
-  }
-
-  if (['husband', 'boyfriend', 'dad', 'father', 'brother', 'male friend'].includes(normalizedPerson)) {
-    categorySet.add('for-him');
-    categorySet.add('personalized');
-  }
-
-  if (['family', 'parents', 'parent'].includes(normalizedPerson)) {
+  if (normalizedOccasion === 'wedding') {
     categorySet.add('family');
     categorySet.add('personalized');
+  }
+
+  if (normalizedOccasion === 'graduation') {
+    categorySet.add('personalized');
+    categorySet.add('for-him');
+    categorySet.add('for-her');
   }
 
   if (normalizedOccasion === 'valentine') {
     categorySet.add('for-her');
     categorySet.add('for-him');
+    categorySet.add('personalized');
+  }
+
+  if (normalizedOccasion === 'surprise' || normalizedOccasion === 'just because') {
+    categorySet.add('personalized');
+    categorySet.add('for-him');
+    categorySet.add('for-her');
+  }
+
+  // Person-based preference
+  if (['girlfriend', 'mom'].includes(normalizedPerson)) {
+    categorySet.add('for-her');
+    categorySet.add('personalized');
+  }
+
+  if (['boyfriend', 'dad'].includes(normalizedPerson)) {
+    categorySet.add('for-him');
+    categorySet.add('personalized');
+  }
+
+  if (['friend', 'colleague'].includes(normalizedPerson)) {
+    categorySet.add('personalized');
+    categorySet.add('birthday');
+  }
+
+  if (normalizedPerson === 'sibling') {
+    categorySet.add('for-him');
+    categorySet.add('for-her');
     categorySet.add('personalized');
   }
 
