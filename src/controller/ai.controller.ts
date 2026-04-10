@@ -19,14 +19,22 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
     const preferredCategories = getPreferredCategories(occasion, person);
     console.log('Preferred Categories:', preferredCategories);
 
-    const candidateProducts = await Product.find({
+    let candidateProducts = await Product.find({
       status: 'Active',
       stock: { $gt: 0 },
       price: { $gte: minPrice, $lte: maxPrice },
       category: { $in: preferredCategories },
-    }).select('_id name category description price rating reviews image alt stock status');
+    });
 
-    console.log('Candidate Products Count:', candidateProducts.length);
+    if (candidateProducts.length === 0) {
+      console.log('Fallback: broad search');
+
+      candidateProducts = await Product.find({
+        status: 'Active',
+        stock: { $gt: 0 },
+        price: { $gte: minPrice, $lte: maxPrice },
+      }).limit(10);
+    }
 
     const aiProductContext = candidateProducts.map((product) => ({
       _id: product._id.toString(),

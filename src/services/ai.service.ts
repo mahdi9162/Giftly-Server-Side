@@ -61,8 +61,9 @@ export const getPreferredCategories = (occasion: string, person: string) => {
   }
 
   // Fallback
-  if (categorySet.size === 0) {
+  if (normalizedOccasion === 'valentine' || normalizedOccasion === 'graduation' || normalizedOccasion === 'just because') {
     categorySet.add('personalized');
+    categorySet.add('birthday'); // 🔥 fallback
   }
 
   return Array.from(categorySet);
