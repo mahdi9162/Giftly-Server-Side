@@ -45,14 +45,20 @@ Important rules:
    - Premium Feel
    - Sentimental Gift
    - Smart Match
+13. The explanation must be 2 to 3 sentences long.
+14. The explanation should be around 120 to 220 characters total.
+15. The explanation should sound natural, helpful, and slightly polished.
+16. Mention the person, occasion, and budget fit.
+17. If interests helped the recommendation, mention them briefly.
+18. If interests were not strongly relevant, do not force them.
 
 Return ONLY this exact JSON structure:
 {
-  "explanation": "short string",
+  "explanation": "2 to 3 sentence explanation, around 120 to 220 characters",
   "products": [
     {
       "_id": "string",
-      "aiReason": "short string",
+      "aiReason": "1 sentence specific reason",
       "label": "string"
     }
   ]
