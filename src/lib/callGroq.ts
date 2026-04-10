@@ -1,15 +1,15 @@
 import Groq from 'groq-sdk';
 import config from '../config';
 
-if (!config.groq_api_key) {
-  throw new Error('GROQ_API_KEY is not set in environment');
-}
-
-const groq = new Groq({
-  apiKey: config.groq_api_key,
-});
-
 export const callGroq = async (prompt: string): Promise<string> => {
+  if (!config.groq_api_key) {
+    throw new Error('GROQ_API_KEY is not set in environment');
+  }
+
+  const groq = new Groq({
+    apiKey: config.groq_api_key,
+  });
+
   try {
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',

@@ -31,6 +31,12 @@ export const getPreferredCategories = (occasion: string, person: string) => {
     categorySet.add('personalized');
   }
 
+  if (normalizedOccasion === 'valentine') {
+    categorySet.add('for-her');
+    categorySet.add('for-him');
+    categorySet.add('personalized');
+  }
+
   // Fallback
   if (categorySet.size === 0) {
     categorySet.add('personalized');

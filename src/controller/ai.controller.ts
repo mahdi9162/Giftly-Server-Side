@@ -11,24 +11,14 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
     const body = req.body as IAiRecommendRequest;
     const { person, occasion, budget, interests } = body;
 
-    // step 1: budget string → min/max number
+    console.log('AI Request Body:', body);
+
     const { minPrice, maxPrice } = parseBudgetRange(budget);
+    console.log('Parsed Budget:', { minPrice, maxPrice });
 
-    // 3) Occasion + find out the preferred categories according to the person.
     const preferredCategories = getPreferredCategories(occasion, person);
-
     console.log('Preferred Categories:', preferredCategories);
 
-    console.log('AI Request Data:', {
-      person,
-      occasion,
-      budget,
-      interests,
-      minPrice,
-      maxPrice,
-    });
-
-    // 4) Retrieve initial candidate products from the database
     const candidateProducts = await Product.find({
       status: 'Active',
       stock: { $gt: 0 },
@@ -36,7 +26,8 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
       category: { $in: preferredCategories },
     }).select('_id name category description price rating reviews image alt stock status');
 
-    // 5) Compacted product data for Groq
+    console.log('Candidate Products Count:', candidateProducts.length);
+
     const aiProductContext = candidateProducts.map((product) => ({
       _id: product._id.toString(),
       name: product.name,
@@ -47,9 +38,6 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
       reviews: product.reviews,
     }));
 
-    console.log('AI Product Context:', aiProductContext);
-
-    // 6) If no matching product is found
     if (aiProductContext.length === 0) {
       return res.status(200).json({
         success: false,
@@ -59,7 +47,6 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
       });
     }
 
-    // 7) built the final prompt for Groq
     const prompt = buildAIPrompt({
       person,
       occasion,
@@ -68,34 +55,65 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
       aiProductContext,
     });
 
-    console.log('Groq Prompt:', prompt);
+    console.log('Prompt Built Successfully');
 
     const rawAiResponse = await callGroq(prompt);
+    console.log('Raw AI Response:', rawAiResponse);
 
     const cleanedAiResponse = rawAiResponse
       .replace(/```json/g, '')
       .replace(/```/g, '')
       .trim();
 
-    const parsedAiResponse = JSON.parse(cleanedAiResponse);
+    console.log('Cleaned AI Response:', cleanedAiResponse);
 
-    const finalProducts = parsedAiResponse.products.map((aiItem: any) => {
-      const matchedProduct = candidateProducts.find((product) => product._id.toString() === aiItem._id);
+    let parsedAiResponse: {
+      explanation?: string;
+      products?: { _id: string; aiReason: string; label: string }[];
+    };
 
-      return {
-        ...matchedProduct?.toObject(),
-        aiReason: aiItem.aiReason,
-        label: aiItem.label,
-      };
-    });
+    try {
+      parsedAiResponse = JSON.parse(cleanedAiResponse);
+    } catch (error) {
+      console.error('Failed to parse AI response:', cleanedAiResponse);
+
+      return res.status(500).json({
+        success: false,
+        message: 'AI returned invalid JSON format',
+        raw: cleanedAiResponse,
+      });
+    }
+
+    if (!parsedAiResponse.products || !Array.isArray(parsedAiResponse.products)) {
+      return res.status(500).json({
+        success: false,
+        message: 'AI response does not contain a valid products array',
+        raw: parsedAiResponse,
+      });
+    }
+
+    const finalProducts = parsedAiResponse.products
+      .map((aiItem) => {
+        const matchedProduct = candidateProducts.find((product) => product._id.toString() === aiItem._id);
+
+        if (!matchedProduct) return null;
+
+        return {
+          ...matchedProduct.toObject(),
+          aiReason: aiItem.aiReason,
+          label: aiItem.label,
+        };
+      })
+      .filter(Boolean);
 
     return res.status(200).json({
       success: true,
-      explanation: parsedAiResponse.explanation,
+      explanation: parsedAiResponse.explanation || '',
       products: finalProducts,
     });
   } catch (error) {
     console.error('AI Recommendation Error:', error);
+
     return res.status(500).json({
       success: false,
       message: error instanceof Error ? error.message : 'Something went wrong while fetching gift recommendations',
