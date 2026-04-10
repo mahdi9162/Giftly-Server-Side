@@ -20,7 +20,7 @@ export const callGroq = async (prompt: string): Promise<string> => {
         },
       ],
       temperature: 0.3,
-      max_tokens: 400,
+      max_tokens: 800,
     });
 
     return completion.choices?.[0]?.message?.content?.trim() || '';
