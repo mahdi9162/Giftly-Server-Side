@@ -32,7 +32,7 @@ export const getPreferredCategories = (occasion: string, person: string) => {
     categorySet.add('personalized');
   }
 
-  if (normalizedOccasion === 'surprise' || normalizedOccasion === 'just because') {
+  if (normalizedOccasion === 'just because') {
     categorySet.add('personalized');
     categorySet.add('for-him');
     categorySet.add('for-her');
@@ -51,7 +51,6 @@ export const getPreferredCategories = (occasion: string, person: string) => {
 
   if (['friend', 'colleague'].includes(normalizedPerson)) {
     categorySet.add('personalized');
-    categorySet.add('birthday');
   }
 
   if (normalizedPerson === 'sibling') {
@@ -60,10 +59,9 @@ export const getPreferredCategories = (occasion: string, person: string) => {
     categorySet.add('personalized');
   }
 
-  // Fallback
-  if (normalizedOccasion === 'valentine' || normalizedOccasion === 'graduation' || normalizedOccasion === 'just because') {
+  // fallback
+  if (categorySet.size === 0) {
     categorySet.add('personalized');
-    categorySet.add('birthday'); // 🔥 fallback
   }
 
   return Array.from(categorySet);
