@@ -3,8 +3,8 @@ import { IAiRecommendRequest } from '../types/ai.interface';
 import { parseBudgetRange } from '../lib/parseBudget';
 import { Product } from '../model/product/product.model';
 import { getPreferredCategories } from '../services/ai.service';
-import { buildAIPrompt } from '../utils/buildAiPromt';
 import { callGroq } from '../lib/callGroq';
+import buildAIPrompt from '../utils/buildAiPromt';
 
 export const getGiftRecommendations = async (req: Request, res: Response) => {
   try {

@@ -38,18 +38,19 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = jsonwebtoken_1.default.sign({ userId: savedUser._id, email: savedUser.email, role: savedUser.role }, config_1.default.jwt_secret, {
             expiresIn: config_1.default.jwt_expires_in,
         });
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 365 * 24 * 60 * 60 * 1000,
+        });
         // Omit password from response
         const userResponse = savedUser.toObject();
         delete userResponse.password;
-        // set httpOnly cookie
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-        });
         return res.status(201).json({
             success: true,
             message: 'User registered successfully',
+            token,
             data: userResponse,
         });
     }
@@ -85,18 +86,19 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = jsonwebtoken_1.default.sign({ userId: user._id, email: user.email, role: user.role }, config_1.default.jwt_secret, {
             expiresIn: config_1.default.jwt_expires_in,
         });
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 365 * 24 * 60 * 60 * 1000,
+        });
         // Omit password from response
         const userResponse = user.toObject();
         delete userResponse.password;
-        // set httpOnly cookie
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-        });
         return res.status(200).json({
             success: true,
             message: 'User logged in successfully',
+            token,
             data: userResponse,
         });
     }
@@ -111,11 +113,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // Logout user
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.clearCookie('token', {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-        });
         return res.status(200).json({
             success: true,
             message: 'User logged out successfully',

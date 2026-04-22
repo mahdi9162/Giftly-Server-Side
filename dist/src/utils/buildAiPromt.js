@@ -1,28 +1,14 @@
-type BuildAIPromptParams = {
-  person: string;
-  occasion: string;
-  budget: string;
-  interests?: string[];
-  aiProductContext: {
-    _id: string;
-    name: string;
-    category: string;
-    description: string;
-    price: number;
-    rating: number;
-    reviews: number;
-  }[];
-};
-
-const buildAIPrompt = ({ person, occasion, budget, interests, aiProductContext }: BuildAIPromptParams) => {
-  return `
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const buildAIPrompt = ({ person, occasion, budget, interests, aiProductContext }) => {
+    return `
 You are an AI gift recommendation assistant for an ecommerce website.
 
 The user preferences are:
 - Person: ${person}
 - Occasion: ${occasion}
 - Budget: ${budget}
-- Interests: ${interests?.join(', ') || 'None'}
+- Interests: ${(interests === null || interests === void 0 ? void 0 : interests.join(', ')) || 'None'}
 
 Here is the ONLY list of real products you are allowed to use:
 ${JSON.stringify(aiProductContext, null, 2)}
@@ -68,5 +54,4 @@ Return ONLY this exact JSON structure:
 }
 `;
 };
-
-export default buildAIPrompt;
+exports.default = buildAIPrompt;
