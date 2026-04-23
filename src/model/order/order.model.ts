@@ -3,6 +3,12 @@ import { IOrder } from './order.interface';
 
 const orderSchema = new Schema<IOrder>(
   {
+    stripeSessionId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
     customerInfo: {
       fullName: { type: String, required: true },
       email: { type: String, required: true },

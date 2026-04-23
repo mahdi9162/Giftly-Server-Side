@@ -6,6 +6,8 @@ export interface IOrderItem {
 }
 
 export interface IOrder {
+  stripeSessionId?: string;
+
   customerInfo: {
     fullName: string;
     email: string;

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { CreateCheckoutSession } from '../services/payment.service';
 import { stripe } from '../config/stripe';
+import { createPaidOrderIntoDB } from '../services/order.service';
 
 export const CreateStripeCheckoutSession = async (req: Request, res: Response) => {
   try {
@@ -46,9 +47,49 @@ export const stripeWebhook = async (req: Request, res: Response) => {
   }
 
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
+    try {
+      const session = event.data.object as any;
 
-    console.log('Payment successful for session:', session.id);
+      console.log('Session id:', session.id);
+      console.log('Session metadata:', session.metadata);
+
+      const metadata = session.metadata;
+
+      if (!metadata) {
+        throw new Error('Missing session metadata');
+      }
+
+      const items = JSON.parse(metadata.items);
+      const shippingAddress = JSON.parse(metadata.shippingAddress);
+
+      console.log('Parsed items:', items);
+      console.log('Parsed shippingAddress:', shippingAddress);
+
+      const payload = {
+        customerInfo: {
+          fullName: metadata.customerName,
+          email: metadata.email,
+          phone: metadata.phone,
+        },
+        shippingAddress,
+        deliveryMethod: metadata.deliveryMethod,
+        paymentMethod: 'card' as const,
+        items,
+      };
+
+      console.log('Paid order payload:', payload);
+
+      const order = await createPaidOrderIntoDB(payload, session.id);
+
+      console.log('Paid order created:', order._id);
+    } catch (error) {
+      console.log('Webhook order creation error:', error);
+
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to create paid order',
+      });
+    }
   }
 
   return res.status(200).json({ received: true });

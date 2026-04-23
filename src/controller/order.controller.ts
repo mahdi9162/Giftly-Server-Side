@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { createOrderIntoDB, getAllOrdersFromDB } from '../services/order.service';
+import { createCodOrderIntoDB, getAllOrdersFromDB } from '../services/order.service';
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const result = await createOrderIntoDB(req.body);
+    const result = await createCodOrderIntoDB(req.body);
 
     res.status(201).json({
       success: true,

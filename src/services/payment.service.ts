@@ -69,6 +69,7 @@ export const CreateCheckoutSession = async (payload: CreateCheckoutSessionPayloa
 
     metadata: {
       customerName: customerInfo.fullName,
+      email: customerInfo.email,
       phone: customerInfo.phone,
       deliveryMethod,
       shippingAddress: JSON.stringify(shippingAddress),

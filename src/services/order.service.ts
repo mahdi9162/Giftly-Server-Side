@@ -4,7 +4,7 @@ import { Product } from '../model/product/product.model';
 import { Order } from '../model/order/order.model';
 
 // create
-export const createOrderIntoDB = async (payload: CreateOrderPayload) => {
+export const createOrderRecord = async (payload: CreateOrderPayload, paymentStatus: 'pending' | 'paid', stripeSessionId?: string) => {
   const { customerInfo, shippingAddress, deliveryMethod, paymentMethod, items } = payload;
 
   if (!items || items.length === 0) {
@@ -45,6 +45,7 @@ export const createOrderIntoDB = async (payload: CreateOrderPayload) => {
   const total = subtotal + shippingCost;
 
   const order = await Order.create({
+    stripeSessionId,
     customerInfo,
     shippingAddress,
     deliveryMethod,
@@ -53,10 +54,26 @@ export const createOrderIntoDB = async (payload: CreateOrderPayload) => {
     subtotal,
     shippingCost,
     total,
-    paymentStatus: 'pending',
+    paymentStatus,
     orderStatus: 'pending',
   });
   return order;
+};
+
+// COD order
+export const createCodOrderIntoDB = async (payload: CreateOrderPayload) => {
+  return createOrderRecord(payload, 'pending');
+};
+
+// PAID order
+export const createPaidOrderIntoDB = async (payload: CreateOrderPayload, stripeSessionId?: string) => {
+  const existingOrder = await Order.findOne({ stripeSessionId });
+
+  if (existingOrder) {
+    return existingOrder;
+  }
+
+  return createOrderRecord(payload, 'paid', stripeSessionId);
 };
 
 // get
