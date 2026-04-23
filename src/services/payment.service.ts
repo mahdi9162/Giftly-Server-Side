@@ -4,7 +4,7 @@ import { Product } from '../model/product/product.model';
 import { stripe } from '../config/stripe';
 
 export const CreateCheckoutSession = async (payload: CreateCheckoutSessionPayload) => {
-  const { customerInfo, deliveryMethod, items } = payload;
+  const { customerInfo, deliveryMethod, shippingAddress, items } = payload;
 
   if (!items || items.length === 0) {
     throw new Error('Order items are required');
@@ -71,6 +71,8 @@ export const CreateCheckoutSession = async (payload: CreateCheckoutSessionPayloa
       customerName: customerInfo.fullName,
       phone: customerInfo.phone,
       deliveryMethod,
+      shippingAddress: JSON.stringify(shippingAddress),
+      items: JSON.stringify(items),
     },
 
     success_url: `${process.env.CLIENT_URL}/checkout/success`,

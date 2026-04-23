@@ -2,6 +2,7 @@ import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import router from './routes';
 import cookieParser from 'cookie-parser';
+import { stripeWebhook } from './controller/payment.controller';
 
 const app: Application = express();
 
@@ -12,6 +13,10 @@ app.use(
     credentials: true,
   }),
 );
+
+// Payment 
+app.post('/api/v1/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+
 app.use(express.json());
 app.use(cookieParser());
 
