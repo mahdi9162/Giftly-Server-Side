@@ -1,14 +1,10 @@
 import express from 'express';
 import { ProductController } from '../controller/product.controller';
-import { validateProduct } from '../middleware/validateProduct';
-import { verifyToken } from '../middleware/auth';
-import { allowRoles } from '../middleware/role';
 
 const router = express.Router();
 
 // getAllProducts
 router.get('/', ProductController.getAllProducts);
-router.get('/:id',ProductController.getProductDetails);
-router.post('/', verifyToken, allowRoles('admin', 'moderator'), validateProduct, ProductController.createProduct);
+router.get('/:id', ProductController.getProductDetails);
 
 export const ProductRoutes = router;
