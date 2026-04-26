@@ -77,8 +77,7 @@ export const CreateCheckoutSession = async (payload: CreateCheckoutSessionPayloa
     },
 
     success_url: `${process.env.CLIENT_URL}/checkout/success`,
-    cancel_url: `${process.env.CLIENT_URL}/checkout`,
+    cancel_url: `${process.env.CLIENT_URL}/checkout/failed`,
   });
-
   return session;
 };

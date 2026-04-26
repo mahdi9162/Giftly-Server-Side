@@ -36,6 +36,8 @@ const orderSchema = new Schema<IOrder>(
 
     items: [
       {
+        _id: false,
+
         productId: {
           type: Schema.Types.ObjectId,
           ref: 'Product',
