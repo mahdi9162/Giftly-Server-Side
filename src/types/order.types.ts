@@ -17,3 +17,11 @@ export type CreateOrderPayload = {
     quantity: number;
   }[];
 };
+
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+
+export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
+export type UpdateOrderStatusPayload = {
+  orderStatus: OrderStatus;
+};
