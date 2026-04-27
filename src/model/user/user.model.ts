@@ -17,16 +17,13 @@ const userSchema = new Schema<IUser>(
 
 // Pre-save middleware / hook : will run before saving a document
 userSchema.pre('save', async function () {
-  // 'this' refers to the document about to be saved
-  const user = this;
-
   // Only hash the password if it has been modified (or is new)
-  if (!user.isModified('password')) {
+  if (!this.isModified('password')) {
     return;
   }
 
   // Hash password using bcrypt salt rounds from config
-  user.password = await bcrypt.hash(user.password as string, Number(config.bcrypt_salt_rounds));
+  this.password = await bcrypt.hash(this.password as string, Number(config.bcrypt_salt_rounds));
 });
 
 // Post-save middleware / hook : will run directly after saving a document

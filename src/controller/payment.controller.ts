@@ -2,6 +2,24 @@ import { Request, Response } from 'express';
 import { CreateCheckoutSession } from '../services/payment.service';
 import { stripe } from '../config/stripe';
 import { createPaidOrderIntoDB } from '../services/order.service';
+import { CreateCheckoutSessionPayload, DeliveryMethod } from '../types/CheckoutSessionPayload';
+
+type CheckoutMetadata = {
+  items: string;
+  shippingAddress: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  deliveryMethod: DeliveryMethod;
+};
+
+type CheckoutSession = {
+  id: string;
+  metadata: CheckoutMetadata | null;
+};
+
+type CheckoutItems = CreateCheckoutSessionPayload['items'];
+type CheckoutShippingAddress = CreateCheckoutSessionPayload['shippingAddress'];
 
 export const CreateStripeCheckoutSession = async (req: Request, res: Response) => {
   try {
@@ -48,7 +66,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
 
   if (event.type === 'checkout.session.completed') {
     try {
-      const session = event.data.object as any;
+      const session = event.data.object as CheckoutSession;
 
       console.log('Session id:', session.id);
       console.log('Session metadata:', session.metadata);
@@ -59,8 +77,8 @@ export const stripeWebhook = async (req: Request, res: Response) => {
         throw new Error('Missing session metadata');
       }
 
-      const items = JSON.parse(metadata.items);
-      const shippingAddress = JSON.parse(metadata.shippingAddress);
+      const items = JSON.parse(metadata.items) as CheckoutItems;
+      const shippingAddress = JSON.parse(metadata.shippingAddress) as CheckoutShippingAddress;
 
       console.log('Parsed items:', items);
       console.log('Parsed shippingAddress:', shippingAddress);

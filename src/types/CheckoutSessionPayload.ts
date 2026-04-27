@@ -1,3 +1,6 @@
+export type DeliveryMethod = 'standard' | 'express';
+export type PaymentMethod = 'cod' | 'card';
+
 export type CreateCheckoutSessionPayload = {
   customerInfo: {
     fullName: string;
@@ -10,8 +13,8 @@ export type CreateCheckoutSessionPayload = {
     postalCode: string;
     country: string;
   };
-  deliveryMethod: 'standard' | 'express';
-  paymentMethod: 'cod' | 'card';
+  deliveryMethod: DeliveryMethod;
+  paymentMethod: PaymentMethod;
   items: {
     productId: string;
     quantity: number;

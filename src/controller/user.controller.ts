@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
 import { User } from '../model/user/user.model';
-import jwt, { Secret } from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import config from '../config';
 import bcrypt from 'bcryptjs';
 import { AuthRequest } from '../middleware/auth';
+
+const jwtOptions: SignOptions = {
+  expiresIn: config.jwt_expires_in as SignOptions['expiresIn'],
+};
 
 // register user
 const register = async (req: Request, res: Response) => {
@@ -27,9 +31,11 @@ const register = async (req: Request, res: Response) => {
     });
 
     // Generate token
-    const token = jwt.sign({ userId: savedUser._id, email: savedUser.email, role: savedUser.role }, config.jwt_secret as Secret, {
-      expiresIn: config.jwt_expires_in as any,
-    });
+    const token = jwt.sign(
+      { userId: savedUser._id, email: savedUser.email, role: savedUser.role },
+      config.jwt_secret as Secret,
+      jwtOptions,
+    );
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -48,11 +54,10 @@ const register = async (req: Request, res: Response) => {
       token,
       data: userResponse,
     });
-  } catch (err: any) {
+  } catch {
     res.status(500).json({
       success: false,
       message: 'Failed to register user',
-      error: err.message,
     });
   }
 };
@@ -81,9 +86,7 @@ const login = async (req: Request, res: Response) => {
     }
 
     // Generate token
-    const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, config.jwt_secret as Secret, {
-      expiresIn: config.jwt_expires_in as any,
-    });
+    const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, config.jwt_secret as Secret, jwtOptions);
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -102,11 +105,10 @@ const login = async (req: Request, res: Response) => {
       token,
       data: userResponse,
     });
-  } catch (err: any) {
+  } catch {
     return res.status(500).json({
       success: false,
       message: 'Failed to login user',
-      error: err.message,
     });
   }
 };
@@ -118,11 +120,10 @@ const logout = async (req: Request, res: Response) => {
       success: true,
       message: 'User logged out successfully',
     });
-  } catch (err: any) {
+  } catch {
     return res.status(500).json({
       success: false,
       message: 'Failed to logout user',
-      error: err.message,
     });
   }
 };
@@ -153,11 +154,10 @@ const getMe = async (req: AuthRequest, res: Response) => {
       message: 'User fetched successfully',
       data: user,
     });
-  } catch (error: any) {
+  } catch {
     return res.status(500).json({
       success: false,
       message: 'Failed to get user',
-      error: error.message,
     });
   }
 };

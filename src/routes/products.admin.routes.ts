@@ -16,4 +16,7 @@ router.get('/:id', verifyToken, allowRoles('admin', 'moderator'), AdminProductCo
 // update product
 router.patch('/:id', verifyToken, allowRoles('admin', 'moderator'), AdminProductController.updateProduct);
 
+// delete product
+router.delete('/:id', verifyToken, allowRoles('admin', 'moderator'), AdminProductController.deleteProduct);
+
 export const AdminProductRoutes = router;

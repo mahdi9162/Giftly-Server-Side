@@ -80,7 +80,7 @@ export const getGiftRecommendations = async (req: Request, res: Response) => {
 
     try {
       parsedAiResponse = JSON.parse(cleanedAiResponse);
-    } catch (error) {
+    } catch {
       console.error('Failed to parse AI response:', cleanedAiResponse);
 
       return res.status(500).json({

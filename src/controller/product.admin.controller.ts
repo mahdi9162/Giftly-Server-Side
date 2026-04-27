@@ -97,7 +97,7 @@ const getAdminProductById = async (req: Request<{ id: string }>, res: Response) 
       });
     }
 
-    // products
+    // find products
     const product = await Product.findById(id).lean();
 
     // if not fount
@@ -148,7 +148,7 @@ const updateProduct = async (req: Request<{ id: string }>, res: Response) => {
 
     const allowedFields = ['name', 'category', 'price', 'stock', 'image', 'alt', 'description', 'status', 'featured', 'featuredOrder'];
 
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
 
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
@@ -170,6 +170,44 @@ const updateProduct = async (req: Request<{ id: string }>, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
+      message: 'Failed to update product',
+      error,
+    });
+  }
+};
+
+// Delete Product
+const deleteProduct = async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // invalid mongo id
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product id',
+      });
+    }
+
+    // find product
+    const product = await Product.findByIdAndDelete(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+
+    // 4. success response
+    return res.status(200).json({
+      success: true,
+      message: 'Product deleted successfully',
+      data: product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
       message: 'Something went wrong',
       error,
     });
@@ -181,4 +219,5 @@ export const AdminProductController = {
   getAdminProducts,
   getAdminProductById,
   updateProduct,
+  deleteProduct,
 };

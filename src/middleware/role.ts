@@ -20,7 +20,7 @@ export const allowRoles = (...allowedRoles: string[]) => {
         });
       }
       next();
-    } catch (error) {
+    } catch {
       return res.status(500).json({
         success: false,
         message: 'Role authorization failed',

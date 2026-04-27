@@ -26,11 +26,6 @@ export const callGroq = async (prompt: string): Promise<string> => {
     return completion.choices?.[0]?.message?.content?.trim() || '';
   } catch (error: unknown) {
     console.error('Groq Error:', error);
-
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-
-    throw new Error('Failed to get response from Groq');
+    return 'Sorry, AI response is unavailable right now.';
   }
 };
