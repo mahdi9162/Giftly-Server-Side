@@ -5,6 +5,7 @@ import { AdminProductRoutes } from './products.admin.routes';
 import { AiRoutes } from './ai.routes';
 import { OrderRoutes } from './order.route';
 import { PaymentRoutes } from './payment.route';
+import { AdminOrderRoutes } from './orders.admin.routes';
 
 const router = express.Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: '/payments',
     route: PaymentRoutes,
+  },
+  {
+    path: '/admin/orders',
+    route: AdminOrderRoutes,
   },
 ];
 

@@ -1,0 +1,141 @@
+import { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import { Order } from '../model/order/order.model';
+
+export const getAdminOrders = async (req: Request, res: Response) => {
+  try {
+    const { page = '1', limit = '9', orderStatus, paymentStatus, date, amount } = req.query;
+
+    const search = req.query.search as string;
+
+    const filter: Record<string, unknown> = {};
+
+    // date
+    if (date === 'today') {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+
+      filter.createdAt = { $gte: start, $lte: end };
+    }
+
+    if (date === 'last-7-days') {
+      const start = new Date();
+      start.setDate(start.getDate() - 7);
+
+      filter.createdAt = { $gte: start };
+    }
+
+    if (date === 'this-month') {
+      const start = new Date();
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+
+      filter.createdAt = { $gte: start };
+    }
+
+    let sortOrder: 1 | -1 = -1;
+    if (date === 'oldest') {
+      sortOrder = 1;
+    }
+
+    // amount
+
+    if (amount === 'under-50') {
+      filter.total = { $lt: 50 };
+    }
+
+    if (amount === '50-100') {
+      filter.total = { $gte: 50, $lte: 100 };
+    }
+
+    if (amount === '100-200') {
+      filter.total = { $gte: 100, $lte: 200 };
+    }
+
+    if (amount === 'above-200') {
+      filter.total = { $gt: 200 };
+    }
+
+    // search
+    if (search) {
+      const orConditions: unknown[] = [
+        { 'customerInfo.fullName': { $regex: search, $options: 'i' } },
+        { 'customerInfo.email': { $regex: search, $options: 'i' } },
+      ];
+
+      filter.$or = orConditions;
+    }
+
+    // order status
+    if (orderStatus && orderStatus !== 'All') {
+      filter.orderStatus = orderStatus;
+    }
+
+    // payment status
+    if (paymentStatus && paymentStatus !== 'All') {
+      filter.paymentStatus = paymentStatus;
+    }
+
+    // pagenation
+    const currentPage = Number(page) || 1;
+    const perPage = Number(limit) || 9;
+    const skip = (currentPage - 1) * perPage;
+
+    const orders = await Order.find(filter).sort({ createdAt: sortOrder }).skip(skip).limit(perPage);
+
+    // According to filter
+    const filteredCount = await Order.countDocuments(filter);
+
+    // overall total
+    const allOrdersCount = await Order.countDocuments();
+
+    // for create total page
+    const totalPages = Math.ceil(filteredCount / perPage);
+
+    // According to order status
+    const pendingOrder = await Order.countDocuments({ orderStatus: 'pending' });
+    const processingOrder = await Order.countDocuments({ orderStatus: 'processing' });
+    const shippedOrder = await Order.countDocuments({ orderStatus: 'shipped' });
+    const deliveredOrder = await Order.countDocuments({ orderStatus: 'delivered' });
+    const cancelledOrder = await Order.countDocuments({ orderStatus: 'cancelled' });
+
+    // According to payments
+    const paidOrder = await Order.countDocuments({ paymentStatus: 'paid' });
+    const unPaidOrder = await Order.countDocuments({ paymentStatus: 'pending' });
+    const refundedOrder = await Order.countDocuments({ paymentStatus: 'refunded' });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Admin orders fetched successfully',
+      meta: {
+        allOrdersCount,
+        filteredCount,
+        totalPages,
+        currentPage,
+        perPage,
+        pendingOrder,
+        processingOrder,
+        shippedOrder,
+        deliveredOrder,
+        cancelledOrder,
+        paidOrder,
+        unPaidOrder,
+        refundedOrder,
+      },
+      data: orders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch admin products',
+      error,
+    });
+  }
+};
+
+export const AdminOrderController = {
+  getAdminOrders,
+};
