@@ -7,5 +7,7 @@ const router = express.Router();
 
 // order get api
 router.get('/', verifyToken, allowRoles('admin', 'moderator'), AdminOrderController.getAdminOrders);
+// update delivery status
+router.patch('/:id', AdminOrderController.updateOrderAndPaymentStatus);
 
 export const AdminOrderRoutes = router;
