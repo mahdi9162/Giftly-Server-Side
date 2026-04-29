@@ -44,6 +44,13 @@ export const createOrderRecord = async (payload: CreateOrderPayload, paymentStat
   const shippingCost = deliveryMethod === 'express' ? 8 : 0;
   const total = subtotal + shippingCost;
 
+  const paidAt = paymentStatus === 'paid' ? new Date() : undefined;
+
+  console.log('Creating order with:', {
+    paymentStatus,
+    paidAt,
+  });
+
   const order = await Order.create({
     stripeSessionId,
     customerInfo,
@@ -55,6 +62,7 @@ export const createOrderRecord = async (payload: CreateOrderPayload, paymentStat
     shippingCost,
     total,
     paymentStatus,
+    paidAt,
     orderStatus: 'pending',
   });
   return order;

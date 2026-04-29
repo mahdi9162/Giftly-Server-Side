@@ -95,11 +95,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
         items,
       };
 
-      console.log('Paid order payload:', payload);
-
-      const order = await createPaidOrderIntoDB(payload, session.id);
-
-      console.log('Paid order created:', order._id);
+      await createPaidOrderIntoDB(payload, session.id);
     } catch (error) {
       console.log('Webhook order creation error:', error);
 

@@ -204,7 +204,7 @@ export const updateOrderAndPaymentStatus = async (req: Request<{ id: string }>, 
       });
     }
 
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, string | Date> = {};
 
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
@@ -218,9 +218,28 @@ export const updateOrderAndPaymentStatus = async (req: Request<{ id: string }>, 
 
     if (orderStatus === 'delivered') {
       updateData.paymentStatus = 'paid';
+      updateData.paidAt = new Date();
     }
 
-    // updated status
+    const now = new Date();
+
+    if (orderStatus === 'processing') {
+      updateData.confirmedAt = now;
+    }
+
+    if (orderStatus === 'shipped') {
+      updateData.shippedAt = now;
+    }
+
+    if (orderStatus === 'delivered') {
+      updateData.deliveredAt = now;
+    }
+
+    if (orderStatus === 'cancelled') {
+      updateData.cancelledAt = now;
+    }
+
+    // DB update
     const updatedOrder = await Order.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
     if (!updatedOrder) {
