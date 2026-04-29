@@ -30,6 +30,12 @@ export interface IOrder {
   shippingCost: number;
   total: number;
 
-  paymentStatus: 'pending' | 'paid' | 'failed';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   orderStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
+  confirmedAt?: Date;
+  shippedAt?: Date;
+  deliveredAt?: Date;
+  cancelledAt?: Date;
+  paidAt?: Date;
 }
