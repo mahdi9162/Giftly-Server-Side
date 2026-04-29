@@ -43,8 +43,9 @@ const getAdminProducts = async (req: Request, res: Response) => {
     if (search) {
       filter.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
     }
-
-    if (status && status !== 'All') {
+    if (status === 'Out of Stock') {
+      filter.stock = { $lte: 0 };
+    } else if (status && status !== 'All') {
       filter.status = status;
     }
 
@@ -59,7 +60,7 @@ const getAdminProducts = async (req: Request, res: Response) => {
 
     const activeProducts = await Product.countDocuments({ status: 'Active' });
     const draftProducts = await Product.countDocuments({ status: 'Draft' });
-    const outOfStockProducts = await Product.countDocuments({ status: 'Out of Stock' });
+    const outOfStockProducts = await Product.countDocuments({ stock: { $lte: 0 } });
 
     res.status(200).json({
       success: true,

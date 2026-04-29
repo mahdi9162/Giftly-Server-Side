@@ -3,4 +3,5 @@ export interface IUser {
   email: string;
   password?: string;
   role: 'admin' | 'moderator' | 'user';
+  status: 'active' | 'inactive' | 'blocked';
 }

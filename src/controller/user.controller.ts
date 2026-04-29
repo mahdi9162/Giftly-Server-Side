@@ -28,6 +28,7 @@ const register = async (req: Request, res: Response) => {
       name,
       email,
       password,
+      status: 'active'
     });
 
     // Generate token

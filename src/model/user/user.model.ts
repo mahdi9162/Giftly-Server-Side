@@ -9,6 +9,7 @@ const userSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ['admin', 'user'], default: 'user' },
+    status: { type: String, enum: ['active', 'inactive', 'blocked'], default: 'active' },
   },
   {
     timestamps: true,
