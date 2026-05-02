@@ -3,6 +3,13 @@ import { User } from '../model/user/user.model';
 import { Types } from 'mongoose';
 import { UserStatus } from '../types/user.interface';
 
+type AuthRequest = Request<{ id: string }> & {
+  user?: {
+    _id: string;
+    role: string;
+  };
+};
+
 // get user
 const adminGetUsers = async (req: Request, res: Response) => {
   try {
@@ -134,7 +141,55 @@ const adminUpdateUsers = async (req: Request<{ id: string }, unknown, UserStatus
   }
 };
 
+// delete user
+const adminDeleteUser = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // current logged-in admin
+    const currentUserId = req.user?._id;
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user id',
+      });
+    }
+
+    // prevent self delete
+    if (currentUserId && currentUserId.toString() === id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You cannot delete your own account',
+      });
+    }
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+      data: deletedUser,
+    });
+  } catch (error) {
+    console.error('Failed to delete user:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete user',
+    });
+  }
+};
+
 export const AdminUserController = {
   adminGetUsers,
   adminUpdateUsers,
+  adminDeleteUser,
 };
