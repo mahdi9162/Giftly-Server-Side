@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { User } from '../model/user/user.model';
+import { Types } from 'mongoose';
+import { UserStatus } from '../types/user.interface';
 
+// get user
 const adminGetUsers = async (req: Request, res: Response) => {
   try {
     const { search, status, joined, page = '1', limit = '9' } = req.query;
@@ -75,6 +78,63 @@ const adminGetUsers = async (req: Request, res: Response) => {
   }
 };
 
+// activate => deactivate => block API
+const adminUpdateUsers = async (req: Request<{ id: string }, unknown, UserStatus>, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user id',
+      });
+    }
+
+    const allowedStatuses = ['active', 'inactive', 'blocked'] as const;
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user status',
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        status,
+        statusUpdatedAt: new Date(),
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'User status updated successfully',
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error('Failed to update user status:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update user status',
+    });
+  }
+};
+
 export const AdminUserController = {
   adminGetUsers,
+  adminUpdateUsers,
 };
