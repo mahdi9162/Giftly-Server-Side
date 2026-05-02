@@ -9,5 +9,7 @@ const router = express.Router();
 router.get('/', verifyToken, allowRoles('admin', 'moderator'), AdminUserController.adminGetUsers);
 // activate => deactivate => block --- Update API
 router.patch('/:id/status', AdminUserController.adminUpdateUsers);
+// delete user
+router.delete('/:id', verifyToken, allowRoles('admin', 'moderator'), AdminUserController.adminDeleteUser);
 
 export const AdminUserRoutes = router;
