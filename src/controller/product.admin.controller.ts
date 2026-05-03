@@ -101,7 +101,7 @@ const getAdminProductById = async (req: Request<{ id: string }>, res: Response) 
     // find products
     const product = await Product.findById(id).lean();
 
-    // if not fount
+    // if not found
     if (!product) {
       return res.status(404).json({
         success: false,

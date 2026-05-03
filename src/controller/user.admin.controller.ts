@@ -156,7 +156,7 @@ const adminDeleteUser = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // prevent self delete
+    // prevent admin self delete
     if (currentUserId && currentUserId.toString() === id) {
       return res.status(403).json({
         success: false,
