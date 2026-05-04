@@ -50,9 +50,9 @@ const moduleRoutes = [
     route: StoreRoutes,
   },
   {
-    path: '/admin/dashboard/stats',
+    path: '/admin/dashboard',
     route: AdminDashboardRoutes,
-  },    
+  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
