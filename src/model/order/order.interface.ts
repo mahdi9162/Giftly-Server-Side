@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 export interface IOrderItem {
   productId: Types.ObjectId;
   quantity: number;
+  priceAtPurchase: number;
 }
 
 export interface IOrder {
