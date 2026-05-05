@@ -187,7 +187,75 @@ const getSalesOverview = async (req: Request, res: Response) => {
   }
 };
 
+// top products
+const getTopProducts = async (req: Request, res: Response) => {
+  try {
+    const topProducts = await Order.aggregate([
+      {
+        $match: {
+          paymentStatus: 'paid',
+          orderStatus: { $ne: 'cancelled' },
+        },
+      },
+      {
+        $unwind: '$items',
+      },
+
+      {
+        $group: {
+          _id: '$items.productId',
+          totalSold: { $sum: '$items.quantity' },
+          totalRevenue: {
+            $sum: { $multiply: ['$items.quantity', '$items.price'] },
+          },
+        },
+      },
+
+      {
+        $sort: { totalSold: -1 },
+      },
+
+      {
+        $limit: 3,
+      },
+
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'product',
+        },
+      },
+
+      {
+        $unwind: '$product',
+      },
+
+      {
+        $project: {
+          name: '$product.name',
+          totalSold: 1,
+          totalRevenue: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: topProducts,
+      message: 'Top products fatched successfully!',
+    });
+  } catch {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fatched top products',
+    });
+  }
+};
+
 export const AdminDashboardController = {
   getAdminOverview,
   getSalesOverview,
+  getTopProducts,
 };

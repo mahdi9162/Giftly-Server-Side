@@ -8,6 +8,8 @@ const router = express.Router();
 // get dashboard overview
 router.get('/stats', verifyToken, allowRoles('admin', 'moderator'), AdminDashboardController.getAdminOverview);
 // get sales overview
-router.get('/sales-overview', AdminDashboardController.getSalesOverview);
+router.get('/sales-overview', verifyToken, allowRoles('admin', 'moderator'), AdminDashboardController.getSalesOverview);
+// top products
+router.get('/top-products', AdminDashboardController.getTopProducts);
 
 export const AdminDashboardRoutes = router;

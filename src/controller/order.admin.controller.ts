@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import { OrderStatus, PaymentStatus } from '../types/order.types';
 
 // get api
-export const getAdminOrders = async (req: Request, res: Response) => {
+const getAdminOrders = async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '9', orderStatus, paymentStatus, date, amount } = req.query;
 
@@ -139,7 +139,7 @@ export const getAdminOrders = async (req: Request, res: Response) => {
 };
 
 // update api
-export const updateOrderAndPaymentStatus = async (req: Request<{ id: string }>, res: Response) => {
+const updateOrderAndPaymentStatus = async (req: Request<{ id: string }>, res: Response) => {
   try {
     const { id } = req.params;
     const { orderStatus, paymentStatus } = req.body;
