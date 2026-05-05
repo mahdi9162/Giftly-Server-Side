@@ -215,10 +215,39 @@ const deleteProduct = async (req: Request<{ id: string }>, res: Response) => {
   }
 };
 
+// low stock products
+const getLowStockProducts = async (req: Request, res: Response) => {
+  try {
+    const filter = { stock: { $lte: 8 }, status: 'Active' };
+
+    const products = await Product.find(filter).select('_id name category stock').sort({ stock: 1 });
+
+    if (products.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No low stock products available in this moment!',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Low stock products data fetched successfully',
+      data: products,
+    });
+  } catch (error) {
+    console.error('Error fetching low stock products:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch low stock products data',
+    });
+  }
+};
+
 export const AdminProductController = {
   createProduct,
   getAdminProducts,
   getAdminProductById,
   updateProduct,
   deleteProduct,
+  getLowStockProducts,
 };
