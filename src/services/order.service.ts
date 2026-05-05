@@ -38,7 +38,7 @@ export const createOrderRecord = async (payload: CreateOrderPayload, paymentStat
     validatedItems.push({
       productId: product._id,
       quantity: item.quantity,
-      price: product.price,
+      priceAtPurchase: product.price,
     });
   }
 
