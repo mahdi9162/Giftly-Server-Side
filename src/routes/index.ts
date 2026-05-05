@@ -8,6 +8,7 @@ import { PaymentRoutes } from './payment.route';
 import { AdminOrderRoutes } from './orders.admin.routes';
 import { AdminUserRoutes } from './users.admin.route';
 import { StoreRoutes } from './store.route';
+import { AdminDashboardRoutes } from './dashboard.admin.route';
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: '/store',
     route: StoreRoutes,
+  },
+  {
+    path: '/admin/dashboard',
+    route: AdminDashboardRoutes,
   },
 ];
 
