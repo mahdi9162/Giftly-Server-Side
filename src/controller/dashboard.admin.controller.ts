@@ -206,7 +206,7 @@ const getTopProducts = async (req: Request, res: Response) => {
           _id: '$items.productId',
           totalSold: { $sum: '$items.quantity' },
           totalRevenue: {
-            $sum: { $multiply: ['$items.quantity', '$items.price'] },
+            $sum: { $multiply: ['$items.quantity', '$items.priceAtPurchase'] },
           },
         },
       },

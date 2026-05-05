@@ -48,6 +48,10 @@ const orderSchema = new Schema<IOrder>(
           required: true,
           min: 1,
         },
+        priceAtPurchase: {
+          type: Number,
+          required: true,
+        },
       },
     ],
 
