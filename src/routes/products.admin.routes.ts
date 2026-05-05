@@ -10,6 +10,9 @@ router.post('/', verifyToken, allowRoles('admin', 'moderator'), validateProduct,
 // get product
 router.get('/', verifyToken, allowRoles('admin', 'moderator'), AdminProductController.getAdminProducts);
 
+// get low stock products
+router.get('/low-stock', verifyToken, allowRoles('admin', 'moderator'), AdminProductController.getLowStockProducts);
+
 // get single product
 router.get('/:id', verifyToken, allowRoles('admin', 'moderator'), AdminProductController.getAdminProductById);
 
