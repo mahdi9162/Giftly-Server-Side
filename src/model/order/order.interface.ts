@@ -10,6 +10,7 @@ export interface IOrder {
   stripeSessionId?: string;
 
   customerInfo: {
+    _id: string;
     fullName: string;
     email: string;
     phone: string;

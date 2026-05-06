@@ -47,11 +47,6 @@ export const createOrderRecord = async (payload: CreateOrderPayload, paymentStat
 
   const paidAt = paymentStatus === 'paid' ? new Date() : undefined;
 
-  console.log('Creating order with:', {
-    paymentStatus,
-    paidAt,
-  });
-
   const order = await Order.create({
     stripeSessionId,
     customerInfo,
@@ -85,9 +80,10 @@ export const createPaidOrderIntoDB = async (payload: CreateOrderPayload, stripeS
   return createOrderRecord(payload, 'paid', stripeSessionId);
 };
 
-// get
+// get order
 export const getAllOrdersFromDB = async () => {
   const orders = await Order.find().sort({ createdAt: -1 });
 
   return orders;
 };
+

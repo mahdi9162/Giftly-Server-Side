@@ -68,6 +68,7 @@ export const CreateCheckoutSession = async (payload: CreateCheckoutSessionPayloa
     line_items,
 
     metadata: {
+      customerId: customerInfo._id,
       customerName: customerInfo.fullName,
       email: customerInfo.email,
       phone: customerInfo.phone,
