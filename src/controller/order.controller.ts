@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import { createCodOrderIntoDB, getAllOrdersFromDB } from '../services/order.service';
+import { createCodOrderIntoDB, getMyOrdersFromDB } from '../services/order.service';
+import { AuthRequest } from '../middleware/auth';
 
+// create order
 const createOrder = async (req: Request, res: Response) => {
   try {
     const result = await createCodOrderIntoDB(req.body);
@@ -20,14 +22,24 @@ const createOrder = async (req: Request, res: Response) => {
   }
 };
 
-const getAllOrders = async (req: Request, res: Response) => {
+// get my orders
+const getMyOrders = async (req: AuthRequest, res: Response) => {
   try {
-    const result = await getAllOrdersFromDB();
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User Id not found!',
+      });
+    }
+
+    const orders = await getMyOrdersFromDB(userId);
 
     res.status(200).json({
       success: true,
-      message: 'Orders retrieved successfully',
-      data: result,
+      message: 'Your orders have been retrieved successfully',
+      data: orders,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to get orders';
@@ -41,5 +53,5 @@ const getAllOrders = async (req: Request, res: Response) => {
 
 export const UserOrder = {
   createOrder,
-  getAllOrders,
+  getMyOrders,
 };

@@ -80,10 +80,18 @@ export const createPaidOrderIntoDB = async (payload: CreateOrderPayload, stripeS
   return createOrderRecord(payload, 'paid', stripeSessionId);
 };
 
-// get order
-export const getAllOrdersFromDB = async () => {
-  const orders = await Order.find().sort({ createdAt: -1 });
+// get my order
+export const getMyOrdersFromDB = async (userId: string) => {
+  try {
+    const orders = await Order.find({ 'customerInfo._id': userId });
 
-  return orders;
+    if (orders.length === 0) {
+      return [];
+    } else {
+      return orders;
+    }
+    
+  } catch (error) {
+    console.log(error);
+  }
 };
-
