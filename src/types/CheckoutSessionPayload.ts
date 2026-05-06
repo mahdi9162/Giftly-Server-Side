@@ -3,6 +3,7 @@ export type PaymentMethod = 'cod' | 'card';
 
 export type CreateCheckoutSessionPayload = {
   customerInfo: {
+    _id: string;
     fullName: string;
     email: string;
     phone: string;

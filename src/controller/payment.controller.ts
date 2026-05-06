@@ -6,10 +6,11 @@ import { CreateCheckoutSessionPayload, DeliveryMethod } from '../types/CheckoutS
 
 type CheckoutMetadata = {
   items: string;
-  shippingAddress: string;
+  customerId: string;
   customerName: string;
   email: string;
   phone: string;
+  shippingAddress: string;
   deliveryMethod: DeliveryMethod;
 };
 
@@ -68,9 +69,6 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     try {
       const session = event.data.object as CheckoutSession;
 
-      console.log('Session id:', session.id);
-      console.log('Session metadata:', session.metadata);
-
       const metadata = session.metadata;
 
       if (!metadata) {
@@ -80,11 +78,9 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       const items = JSON.parse(metadata.items) as CheckoutItems;
       const shippingAddress = JSON.parse(metadata.shippingAddress) as CheckoutShippingAddress;
 
-      console.log('Parsed items:', items);
-      console.log('Parsed shippingAddress:', shippingAddress);
-
       const payload = {
         customerInfo: {
+          _id: metadata.customerId,
           fullName: metadata.customerName,
           email: metadata.email,
           phone: metadata.phone,

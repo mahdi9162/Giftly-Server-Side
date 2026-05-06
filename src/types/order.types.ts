@@ -1,5 +1,6 @@
 export type CreateOrderPayload = {
   customerInfo: {
+    _id: string;
     fullName: string;
     email: string;
     phone: string;

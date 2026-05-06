@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { createCodOrderIntoDB, getAllOrdersFromDB } from '../services/order.service';
 
-export const createOrder = async (req: Request, res: Response) => {
+const createOrder = async (req: Request, res: Response) => {
   try {
     const result = await createCodOrderIntoDB(req.body);
 
@@ -20,7 +20,7 @@ export const createOrder = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllOrders = async (req: Request, res: Response) => {
+const getAllOrders = async (req: Request, res: Response) => {
   try {
     const result = await getAllOrdersFromDB();
 
@@ -37,4 +37,9 @@ export const getAllOrders = async (req: Request, res: Response) => {
       message,
     });
   }
+};
+
+export const UserOrder = {
+  createOrder,
+  getAllOrders,
 };
