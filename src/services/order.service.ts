@@ -83,15 +83,77 @@ export const createPaidOrderIntoDB = async (payload: CreateOrderPayload, stripeS
 // get my order
 export const getMyOrdersFromDB = async (userId: string) => {
   try {
-    const orders = await Order.find({ 'customerInfo._id': userId });
+    const orders = await Order.find({ 'customerInfo._id': userId })
+      .select('_id total orderStatus paymentStatus createdAt items')
+      .sort({ createdAt: -1 });
 
     if (orders.length === 0) {
       return [];
     } else {
       return orders;
     }
-    
   } catch (error) {
     console.log(error);
   }
+};
+
+// my weekly trend
+export const getMyWeeklyTrend = async (userId: string) => {
+  const currentEnd = new Date();
+  currentEnd.setHours(23, 59, 59, 999);
+  const currentStart = new Date();
+  currentStart.setDate(currentStart.getDate() - 6);
+  currentStart.setHours(0, 0, 0, 0);
+
+  const ordersTrend = await Order.aggregate([
+    {
+      $match: { 'customerInfo._id': userId, createdAt: { $gte: currentStart, $lte: currentEnd }, orderStatus: { $ne: 'cancelled' } },
+    },
+    {
+      $group: {
+        _id: { $dayOfWeek: '$createdAt' },
+        totalOrders: { $sum: 1 },
+      },
+    },
+    {
+      $sort: {
+        _id: 1,
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        day: '$_id',
+        totalOrders: 1,
+      },
+    },
+  ]);
+
+  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const defaultWeeklyData = [
+    { day: 1, totalOrders: 0 },
+    { day: 2, totalOrders: 0 },
+    { day: 3, totalOrders: 0 },
+    { day: 4, totalOrders: 0 },
+    { day: 5, totalOrders: 0 },
+    { day: 6, totalOrders: 0 },
+    { day: 7, totalOrders: 0 },
+  ];
+
+  const allData = defaultWeeklyData.map((dayItem) => {
+    const foundOrder = ordersTrend.find((order) => order.day === dayItem.day);
+
+    if (foundOrder) {
+      return foundOrder;
+    } else {
+      return dayItem;
+    }
+  });
+
+  const result = allData.map((item) => {
+    return { name: dayLabels[item.day - 1], orders: item.totalOrders };
+  });
+
+  return result;
 };
