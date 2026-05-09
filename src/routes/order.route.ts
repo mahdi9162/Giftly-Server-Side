@@ -5,6 +5,8 @@ import { verifyToken } from '../middleware/auth';
 const router = express.Router();
 
 router.post('/', verifyToken, UserOrder.createOrder);
-router.get('/', verifyToken, UserOrder.getAllOrders);
+router.get('/overview', verifyToken, UserOrder.getOrdersOverview);
+router.get('/stats/weekly', verifyToken, UserOrder.getWeeklyTrend);
+router.get('/my-orders', verifyToken, UserOrder.getFullOrdersList);
 
 export const OrderRoutes = router;

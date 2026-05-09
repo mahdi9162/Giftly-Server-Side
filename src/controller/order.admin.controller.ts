@@ -25,7 +25,8 @@ const getAdminOrders = async (req: Request, res: Response) => {
 
     if (date === 'last-7-days') {
       const start = new Date();
-      start.setDate(start.getDate() - 7);
+      start.setDate(start.getDate() - 6);
+      start.setHours(0, 0, 0, 0);
 
       filter.createdAt = { $gte: start };
     }

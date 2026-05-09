@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import { createCodOrderIntoDB, getAllOrdersFromDB } from '../services/order.service';
+import { createCodOrderIntoDB, getMyFullOrdersList, getMyOrdersOverview, getMyWeeklyTrend } from '../services/order.service';
+import { AuthRequest } from '../middleware/auth';
 
+// create order
 const createOrder = async (req: Request, res: Response) => {
   try {
     const result = await createCodOrderIntoDB(req.body);
@@ -20,14 +22,30 @@ const createOrder = async (req: Request, res: Response) => {
   }
 };
 
-const getAllOrders = async (req: Request, res: Response) => {
+// get my orders
+const getOrdersOverview = async (req: AuthRequest, res: Response) => {
   try {
-    const result = await getAllOrdersFromDB();
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User Id not found!',
+      });
+    }
+    const orders = await getMyOrdersOverview(userId);
+
+    if (orders?.length === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'No orders available right now!',
+      });
+    }
 
     res.status(200).json({
       success: true,
-      message: 'Orders retrieved successfully',
-      data: result,
+      message: 'Your orders have been retrieved successfully',
+      data: orders,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to get orders';
@@ -39,7 +57,72 @@ const getAllOrders = async (req: Request, res: Response) => {
   }
 };
 
+// my weekly trend
+const getWeeklyTrend = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User Id not found!',
+      });
+    }
+
+    const chartData = await getMyWeeklyTrend(userId);
+
+    if (chartData?.length === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'No chart data available right now!',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Chart data fetched successfully',
+      data: chartData,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetched chart data';
+    res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+};
+
+// get my full orders list
+const getFullOrdersList = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User Id not found!',
+      });
+    }
+
+    const result = await getMyFullOrdersList(userId as string, req.query);
+
+    res.status(200).json({
+      success: true,
+      message: 'Orders fetched successfully',
+      ...result,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetched orders data';
+    res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+};
+
 export const UserOrder = {
   createOrder,
-  getAllOrders,
+  getOrdersOverview,
+  getWeeklyTrend,
+  getFullOrdersList,
 };

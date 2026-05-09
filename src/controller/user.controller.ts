@@ -12,7 +12,8 @@ const jwtOptions: SignOptions = {
 // register user
 const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    console.log('BODY:', req.body);
+    const { name, profileImage, email, password } = req.body;
 
     // Check if user already exists
     const isUserExist = await User.findOne({ email });
@@ -26,14 +27,15 @@ const register = async (req: Request, res: Response) => {
 
     const savedUser = await User.create({
       name,
+      profileImage,
       email,
       password,
-      status: 'active'
+      status: 'active',
     });
 
     // Generate token
     const token = jwt.sign(
-      { userId: savedUser._id, email: savedUser.email, role: savedUser.role },
+      { userId: savedUser._id, profileImage: profileImage, email: savedUser.email, role: savedUser.role },
       config.jwt_secret as Secret,
       jwtOptions,
     );
