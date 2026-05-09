@@ -1,7 +1,16 @@
 import mongoose from 'mongoose';
-import { CreateOrderPayload } from '../types/order.types';
+import { CreateOrderPayload, OrderStatus, PaymentStatus } from '../types/order.types';
 import { Product } from '../model/product/product.model';
 import { Order } from '../model/order/order.model';
+
+type MyOrdersQuery = {
+  page?: string;
+  limit?: string;
+  search?: string;
+  orderStatus?: OrderStatus | 'all';
+  paymentStatus?: PaymentStatus | 'all';
+  date?: string;
+};
 
 // create
 export const createOrderRecord = async (payload: CreateOrderPayload, paymentStatus: 'pending' | 'paid', stripeSessionId?: string) => {
@@ -80,8 +89,8 @@ export const createPaidOrderIntoDB = async (payload: CreateOrderPayload, stripeS
   return createOrderRecord(payload, 'paid', stripeSessionId);
 };
 
-// get my order
-export const getMyOrdersFromDB = async (userId: string) => {
+// get my orders overview
+export const getMyOrdersOverview = async (userId: string) => {
   try {
     const orders = await Order.find({ 'customerInfo._id': userId })
       .select('_id total orderStatus paymentStatus createdAt items')
@@ -156,4 +165,82 @@ export const getMyWeeklyTrend = async (userId: string) => {
   });
 
   return result;
+};
+
+// get my full orders list
+export const getMyFullOrdersList = async (userId: string, query: MyOrdersQuery) => {
+  if (!userId) {
+    return { message: 'User Id not found' };
+  }
+
+  const filter: Record<string, unknown> = {
+    'customerInfo._id': userId,
+  };
+
+  const { page = '1', limit = '9', search, orderStatus, paymentStatus, date } = query;
+
+  // date
+
+  if (date === 'last-7-days') {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    start.setDate(start.getDate() - 6);
+
+    filter.createdAt = { $gte: start };
+  }
+
+  if (date === 'this-month') {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    start.setDate(1);
+
+    filter.createdAt = { $gte: start };
+  }
+
+  let sortOrder: 1 | -1 = -1;
+  if (date === 'oldest') {
+    sortOrder = 1;
+  }
+
+  // payment status
+  if (paymentStatus && paymentStatus !== 'all') {
+    filter.paymentStatus = paymentStatus;
+  }
+
+  // order status
+  if (orderStatus && orderStatus !== 'all') {
+    filter.orderStatus = orderStatus;
+  }
+
+  // search
+  if (search) {
+    const trimmedSearch = search.trim();
+
+    if (mongoose.Types.ObjectId.isValid(trimmedSearch)) {
+      filter._id = trimmedSearch;
+    } else {
+      filter._id = null;
+    }
+  }
+
+  // pagination
+  const currentPage = Number(page) || 1;
+  const perPage = Number(limit) || 9;
+  const skip = (currentPage - 1) * perPage;
+
+  const totalOrders = await Order.countDocuments(filter);
+  const totalPages = Math.ceil(totalOrders / perPage);
+
+  const orders = await Order.find(filter).sort({ createdAt: sortOrder }).skip(skip).limit(perPage);
+
+  return {
+    meta: {
+      totalOrders,
+      totalPages,
+      currentPage,
+      perPage,
+    },
+    data: orders,
+  };
 };

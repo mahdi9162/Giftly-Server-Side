@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createCodOrderIntoDB, getMyOrdersFromDB, getMyWeeklyTrend } from '../services/order.service';
+import { createCodOrderIntoDB, getMyFullOrdersList, getMyOrdersOverview, getMyWeeklyTrend } from '../services/order.service';
 import { AuthRequest } from '../middleware/auth';
 
 // create order
@@ -23,7 +23,7 @@ const createOrder = async (req: Request, res: Response) => {
 };
 
 // get my orders
-const getMyOrders = async (req: AuthRequest, res: Response) => {
+const getOrdersOverview = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
 
@@ -33,7 +33,7 @@ const getMyOrders = async (req: AuthRequest, res: Response) => {
         message: 'User Id not found!',
       });
     }
-    const orders = await getMyOrdersFromDB(userId);
+    const orders = await getMyOrdersOverview(userId);
 
     if (orders?.length === 0) {
       res.status(400).json({
@@ -92,8 +92,37 @@ const getWeeklyTrend = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// get my full orders list
+const getFullOrdersList = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User Id not found!',
+      });
+    }
+
+    const result = await getMyFullOrdersList(userId as string, req.query);
+
+    res.status(200).json({
+      success: true,
+      message: 'Orders fetched successfully',
+      ...result,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetched orders data';
+    res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+};
+
 export const UserOrder = {
   createOrder,
-  getMyOrders,
+  getOrdersOverview,
   getWeeklyTrend,
+  getFullOrdersList,
 };
