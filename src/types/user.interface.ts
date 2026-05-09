@@ -1,5 +1,6 @@
 export interface IUser {
   name: string;
+  profileImage: string;
   email: string;
   password?: string;
   role: 'admin' | 'moderator' | 'user';
