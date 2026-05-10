@@ -222,6 +222,13 @@ const updateMyProfileImage = async (req: AuthRequest, res: Response) => {
 
     const { profileImage } = req.body;
 
+    if (!profileImage) {
+      return res.status(400).json({
+        success: false,
+        message: 'Profile image is required',
+      });
+    }
+
     const result = await updateMyProfileImageIntoDB(userId, profileImage);
 
     return res.status(200).json({
