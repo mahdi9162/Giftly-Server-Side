@@ -4,7 +4,7 @@ import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import config from '../config';
 import bcrypt from 'bcryptjs';
 import { AuthRequest } from '../middleware/auth';
-import { updateMyProfileImageIntoDB, updateMyProfileIntoDB } from '../services/user.service';
+import { updateMyPasswordIntoDB, updateMyProfileImageIntoDB, updateMyProfileIntoDB } from '../services/user.service';
 import { IUser } from '../types/user.interface';
 
 const jwtOptions: SignOptions = {
@@ -209,6 +209,7 @@ const updateMyProfile = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// update profile image
 const updateMyProfileImage = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -236,10 +237,47 @@ const updateMyProfileImage = async (req: AuthRequest, res: Response) => {
       message: 'Profile image updated successfully',
       data: result,
     });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update password';
+
+    return res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+};
+
+// update password
+const updateMyPassword = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized access',
+      });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password and new password are required',
+      });
+    }
+
+    await updateMyPasswordIntoDB(userId, currentPassword, newPassword);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password has been updated successfully',
+    });
   } catch {
     return res.status(500).json({
       success: false,
-      message: 'Failed to update profile image',
+      message: 'Failed to update password',
     });
   }
 };
@@ -250,4 +288,5 @@ export const userControllers = {
   getMe,
   updateMyProfile,
   updateMyProfileImage,
+  updateMyPassword,
 };
