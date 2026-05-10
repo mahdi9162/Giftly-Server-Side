@@ -6,3 +6,9 @@ export const updateMyProfileIntoDB = async (userId: string, payload: Partial<IUs
 
   return result;
 };
+
+export const updateMyProfileImageIntoDB = async (userId: string, profileImage: string) => {
+  const result = await User.findByIdAndUpdate(userId, { profileImage }, { new: true, runValidators: true }).select('-password');
+
+  return result;
+};

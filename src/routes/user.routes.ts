@@ -14,5 +14,7 @@ router.post('/logout', userControllers.logout);
 router.get('/me', verifyToken, userControllers.getMe);
 // update endpoint for profile info + shipping address
 router.patch('/me/profile', verifyToken, userControllers.updateMyProfile);
+// update endpoint for profile image
+router.patch('/me/profile-image', verifyToken, userControllers.updateMyProfileImage);
 
 export const UserRoutes = router;
