@@ -8,6 +8,13 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true },
     profileImage: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    phone: { type: String },
+    address: {
+      street: { type: String },
+      city: { type: String },
+      postalCode: { type: String },
+      country: { type: String },
+    },
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ['admin', 'moderator', 'user'], default: 'user' },
     status: { type: String, enum: ['active', 'inactive', 'blocked'], default: 'active' },
@@ -15,6 +22,7 @@ const userSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
+    strict: true,
   },
 );
 

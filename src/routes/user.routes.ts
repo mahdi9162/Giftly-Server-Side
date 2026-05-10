@@ -12,5 +12,7 @@ router.post('/login', userControllers.login);
 router.post('/logout', userControllers.logout);
 // Me
 router.get('/me', verifyToken, userControllers.getMe);
+// update endpoint for profile info + shipping address
+router.patch('/me/profile', verifyToken, userControllers.updateMyProfile);
 
 export const UserRoutes = router;
