@@ -4,6 +4,8 @@ import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import config from '../config';
 import bcrypt from 'bcryptjs';
 import { AuthRequest } from '../middleware/auth';
+import { updateMyProfileIntoDB } from '../services/user.service';
+import { IUser } from '../types/user.interface';
 
 const jwtOptions: SignOptions = {
   expiresIn: config.jwt_expires_in as SignOptions['expiresIn'],
@@ -12,7 +14,6 @@ const jwtOptions: SignOptions = {
 // register user
 const register = async (req: Request, res: Response) => {
   try {
-    console.log('BODY:', req.body);
     const { name, profileImage, email, password } = req.body;
 
     // Check if user already exists
@@ -164,9 +165,53 @@ const getMe = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
+// update endpoint for profile info + shipping address
+const updateMyProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized access',
+      });
+    }
+
+    const { name, phone, address } = req.body;
+
+    const payload: Partial<IUser> = {};
+
+    if (name !== undefined) payload.name = name;
+    if (phone !== undefined) payload.phone = phone;
+
+    if (address) {
+      payload.address = {
+        street: address.street,
+        city: address.city,
+        postalCode: address.postalCode,
+        country: address.country,
+      };
+    }
+
+    const result = await updateMyProfileIntoDB(userId, payload);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: result,
+    });
+  } catch {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update user',
+    });
+  }
+};
 export const userControllers = {
   register,
   login,
   logout,
   getMe,
+  updateMyProfile,
 };
