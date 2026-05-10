@@ -9,6 +9,7 @@ import { AdminOrderRoutes } from './orders.admin.routes';
 import { AdminUserRoutes } from './users.admin.route';
 import { StoreRoutes } from './store.route';
 import { AdminDashboardRoutes } from './dashboard.admin.route';
+import { NewsletterRoutes } from './newsletter.routes';
 
 const router = express.Router();
 
@@ -52,6 +53,10 @@ const moduleRoutes = [
   {
     path: '/admin/dashboard',
     route: AdminDashboardRoutes,
+  },
+  {
+    path: '/newsletter',
+    route: NewsletterRoutes,
   },
 ];
 
