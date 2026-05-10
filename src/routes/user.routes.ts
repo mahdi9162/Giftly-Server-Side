@@ -16,5 +16,6 @@ router.get('/me', verifyToken, userControllers.getMe);
 router.patch('/me/profile', verifyToken, userControllers.updateMyProfile);
 // update endpoint for profile image
 router.patch('/me/profile-image', verifyToken, userControllers.updateMyProfileImage);
-
+// update user password
+router.patch('/me/password', verifyToken, userControllers.updateMyPassword);
 export const UserRoutes = router;
