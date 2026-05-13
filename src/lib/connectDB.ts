@@ -10,7 +10,9 @@ export const connectDB = async () => {
     throw new Error('Database URL is not provided in environment variables');
   }
 
-  await mongoose.connect(config.database_url);
+  await mongoose.connect(config.database_url, {
+    family: 4
+  });
   isConnected = true;
   console.log('Connected to MongoDB successfully');
 };
